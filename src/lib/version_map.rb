@@ -88,25 +88,19 @@ class VersionMap
     v = {}
     # each .projects file has list of projects whose assemblies will bear the same version specified in the .semver file of same name
 
-    # load all .project files
-    proj_files = Dir["#{Constants::SEMVER}/**/*.projects"]
+    # load all semver files
+    semvers = Dir["#{Constants::SEMVER}/**/*#{Constants::SEMVER}"]
 
-    proj_files.each { |p|
+    semvers.each { |s|
 
-      # nuget name is projects file name
-      name = p
+      # nuget name is semver file name
+      name = s
         .to_s
-        .gsub('.projects', '')
         .gsub(Constants::SEMVER, '')
         .gsub('/', '')
 
-      # list of projects in file
-      f = File.open(p) or die "Unable to open file..."
-      projects = []
-      f.each_line {|line|
-        projects.push line
-      }
-      f.close
+      # list of projects in metadata
+      projects = SemVer.projects_in_metadata
 
       # get the nuget version, which is the same for all projects loaded from .projects above
       nuget_version = get_version "#{Dir.pwd}/#{Constants::SEMVER}/#{name}.semver"
