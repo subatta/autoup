@@ -1,7 +1,7 @@
-class SemVer
+class SemVerMetadata
   
-  def projects_in_metadata file
-      
+  def self.projects_in_metadata file
+
       projects = []
       semver = SemVer.new
       semver.load file
@@ -12,7 +12,7 @@ class SemVer
       }
 
       projects
-      
+
   end
 
 end

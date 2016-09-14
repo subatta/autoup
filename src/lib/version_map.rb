@@ -100,7 +100,7 @@ class VersionMap
         .gsub('/', '')
 
       # list of projects in metadata
-      projects = SemVer.projects_in_metadata
+      projects = SemVerMetadata.projects_in_metadata s
 
       # get the nuget version, which is the same for all projects loaded from .projects above
       nuget_version = get_version "#{Dir.pwd}/#{Constants::SEMVER}/#{name}.semver"
