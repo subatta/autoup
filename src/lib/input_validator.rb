@@ -20,7 +20,7 @@ class InputValidator
   def validate_manifest m
 
     manifest = Hashit.new m
-    puts 'Validating upgrade manifest...'
+    puts 'Validating upgrade manifest...'.bg_green.white
 
     if manifest.nil? || manifest.class.to_s != 'Hashit'
       yield 'Config map must be a non-nil class of type Hashit'

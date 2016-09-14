@@ -53,13 +53,13 @@ class VersionMap
 
       next if pkg_file[0].nil?
 
-      puts "Finding packages in: #{pkg_file[0]}"
+      puts "Finding packages in: #{pkg_file[0]}".bg_green.white
       
       doc = Nokogiri::XML File.read(pkg_file[0])
       nodes = doc.xpath "//*[@id]"
       nodes.each { |node|
         if (!versions[node['id']].nil? && node['version'] != versions[node['id']])
-          puts "======Error: Package #{node['id']} with version #{node['version']} has a different pre-exisiting version: #{versions[node['id']]}"
+          puts "======Error: Package #{node['id']} with version #{node['version']} has a different pre-exisiting version: #{versions[node['id']]}".red
         end
         versions[node['id']] = node['version']
       }

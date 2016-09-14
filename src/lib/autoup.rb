@@ -1,4 +1,5 @@
 require_relative 'constants'
+require_relative 'colorize'
 require_relative 'gitapi'
 require_relative 'dependency_tree'
 

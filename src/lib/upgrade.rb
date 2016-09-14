@@ -16,10 +16,10 @@ class UpgradePackages
 
     # obtain an upgrade branch
     if (GitApi.DoesBranchExist('origin', UPGRADE_BRANCH) != Constants::EMPTY)
-      puts 'Checking out existing upgrade branch...'
+      puts 'Checking out existing upgrade branch...'.bg_green.white
       return false if !GitApi.CheckoutExistingBranch(UPGRADE_BRANCH) == Constants::EMPTY
     else
-      puts 'Checking out new upgrade branch...'
+      puts 'Checking out new upgrade branch...'.bg_green.white
       return false if !GitApi.CheckoutNewBranch(UPGRADE_BRANCH) == Constants::EMPTY
     end
 
@@ -46,23 +46,23 @@ class UpgradePackages
 
     # replace versions in package config files
     # this should increment semver if the project produces assembly for a nuget package
-    puts Constants::UPGRADE_PROGRESS + 'Replacing package versions...'
+    puts "#{Constants::UPGRADE_PROGRESS}Replacing package versions...".bg_green.white
     pkg_files = Dir.glob '**/packages.config'
     if !replace_package_versions(pkg_files)
-      puts Constants::UPGRADE_PROGRESS + 'Package version replacement failed.'
+      puts "#{Constants::UPGRADE_PROGRESS}Package version replacement failed.".red
       return false
     end
 
     # replace versions in project references
-    puts Constants::UPGRADE_PROGRESS + 'Replacing project versions...'
+    puts "#{Constants::UPGRADE_PROGRESS}Replacing project versions...".bg_green.white
     proj_files = Dir.glob '**/*.csproj'
     if !replace_project_versions(proj_files)
-      puts Constants::UPGRADE_PROGRESS + 'Project version replacement failed.'
+      puts "#{Constants::UPGRADE_PROGRESS}Project version replacement failed.".red
       return false
     end
 
     # handle semver increment where packages need it
-    puts Constants::UPGRADE_PROGRESS + 'Upgrading semvers...'
+    puts "#{Constants::UPGRADE_PROGRESS}Upgrading semvers...".bg_green.white
     auto_update_semvers
     nuget_targets << Dir.pwd + '/build_artifacts'
     
@@ -71,7 +71,7 @@ class UpgradePackages
     output = system 'rake'
     
     if output.to_s == 'false'
-      puts Constants::UPGRADE_PROGRESS + ' Rake Error: There were errors during rake run.'
+      puts "#{Constants::UPGRADE_PROGRESS}Rake Error: There were errors during rake run.".red
       # save state
       GitApi.CommitChanges( 'Versions updated, build failed')
 
@@ -80,7 +80,7 @@ class UpgradePackages
 
     # update version map with nuget versions after build success
     update_version_map
-    puts Constants::UPGRADE_PROGRESS + 'Semver upgraded. Version map updated.'
+    puts "#{Constants::UPGRADE_PROGRESS}Semver upgraded. Version map updated.".bg_green.white
 
     true
   end
@@ -144,7 +144,7 @@ class UpgradePackages
 
       # iterate each package file, replace version numbers and save
       pkg_files.each{ |file|
-        puts "Finding packages in: #{Dir.pwd}/#{file}..."
+        puts "Finding packages in: #{Dir.pwd}/#{file}...".bg_green.white
         doc = Nokogiri::XML File.read(file)
         nodes = doc.xpath "//*[@id]"
         nodes.each { |node|
@@ -162,8 +162,6 @@ class UpgradePackages
                         .sub(/packages.config/, '')
                         .sub(/.csproj/, '')
                         .sub('/', '')
-          
-          puts "./#{Constants::SEMVER}/#{@project_packages[proj_name]}#{Constants::SEMVER}"
           
           @semvers_to_increment << "./#{Constants::SEMVER}/#{@project_packages[proj_name]}#{Constants::SEMVER}"
           
@@ -197,7 +195,7 @@ class UpgradePackages
     begin
       # iterate each package file, replace version numbers and save
       proj_files.each{ |file|
-        puts "Updating references in: #{file}..."
+        puts "Updating references in: #{file}...".bg_green.white
         doc = Nokogiri::XML File.read file
         nodes = doc.search 'Reference'
         nodes.each { |node|

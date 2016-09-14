@@ -7,12 +7,12 @@
 module GitApi
 
   def GitApi.CheckoutNewBranch branch
-    puts "Checking out new branch #{branch}..."
+    puts "Checking out new branch #{branch}...".bg_green.white
     `git checkout -b #{branch}`
   end
 
   def GitApi.CheckoutExistingBranch branch
-    puts "Checking out existing branch #{branch}..."
+    puts "Checking out existing branch #{branch}...".bg_green.white
     `git checkout #{branch}`
 
     # check if checkout succeeded
@@ -22,23 +22,23 @@ module GitApi
   end
 
   def GitApi.DoesBranchExist remote,  branch
-    puts "Checking if branch #{branch} existing at #{remote}..."
+    puts "Checking if branch #{branch} existing at #{remote}...".bg_green.white
     `git ls-remote --heads #{remote} #{branch}`
   end
 
   def GitApi.RebaseLocal branch
-    puts "Rebasing #{branch} with checked out branch..."
+    puts "Rebasing #{branch} with checked out branch...".bg_green.white
     `git stash`
     `git rebase #{branch}`
   end
 
   def GitApi.CheckoutLocal branch
-    puts "Checking out local branch: #{branch}..."
+    puts "Checking out local branch: #{branch}...".bg_green.white
     `git checkout #{branch}`
   end
 
   def GitApi.PushBranch remote, branch
-    puts "Pushing #{branch} to #{remote}..."
+    puts "Pushing #{branch} to #{remote}...".bg_green.white
     `git push #{remote} #{branch}`
   end
 
@@ -84,25 +84,25 @@ module GitApi
 
     # clear repo folder if it already exists
     if File.directory? repo
-      puts 'Repository already exists! Cleaning...'
+      puts 'Repository already exists! Cleaning...'.bg_green.white
       FileUtils.rm_rf repo
     end
 
     # clone to local
-    puts 'Cloning repo to local...'
+    puts 'Cloning repo to local...'.bg_green.white
     begin
       # also tests for valid repo, this will cout if cmd fails, no need for additional message
       cmd_out = system "git clone #{repo_url}"
       return false if cmd_out.to_s == 'false'
     rescue
-      puts "Clone repo for #{repo_url} failed"
+      puts "Clone repo for #{repo_url} failed".red
       puts $!
       return false
     end
 
     # checkout requested branch if it's not the default branch checked out when cloned
     Dir.chdir repo
-    puts "Checking out requested branch: #{branch}"
+    puts "Checking out requested branch: #{branch}".bg_green.white
     `git fetch`
 
     cmd_out = GitApi.CheckoutExistingBranch branch
@@ -111,29 +111,29 @@ module GitApi
   end
 
   def GitApi.ProjectNameFromRepo repo_url
-    puts "Repo Url provided: #{repo_url}. Parsing..."
+    puts "Repo Url provided: #{repo_url}. Parsing...".bg_green.white
     repo = Constants::EMPTY
     begin
       uri = Addressable::URI.parse repo_url
     rescue
       puts $!
-      puts "repo_url: #{repo_url} parse failed"
+      puts "repo_url: #{repo_url} parse failed".red
       return repo
     end
 
     if uri.nil?
-      puts 'Invalid repo_url provided'
+      puts 'Invalid repo_url provided'.red
       return repo
     end
 
     directory = Pathname.new(uri.path).basename
     if directory.nil?
-      puts 'No directory provided in repo_url'
+      puts 'No directory provided in repo_url'.red
       return repo
     end
 
     repo = directory.to_s.gsub uri.extname, repo
-    puts "Repository name parsed: #{repo}"
+    puts "Repository name parsed: #{repo}".bg_green.white
 
     repo
   end

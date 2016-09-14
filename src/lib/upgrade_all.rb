@@ -28,12 +28,12 @@ class UpgradeAll
   def Do input_validator
 
     puts "\n"
-    puts Constants::UPGRADE_PROGRESS + 'Upgrade All has begun..'
+    puts "#{Constants::UPGRADE_PROGRESS}Upgrade All has begun..".bg_green.white
 
     return false if @manifest.nil?
 
     # validate manifest
-    puts Constants::UPGRADE_PROGRESS + 'Validating manifest...'
+    puts "#{Constants::UPGRADE_PROGRESS}Validating manifest...".bg_green.white
     validation_errors = []
     input_validator.validate_manifest(@manifest) do |error|
       validation_errors << error if !error.nil?
@@ -44,23 +44,23 @@ class UpgradeAll
     upgrader = UpgradePackages.new
 
     # cycle through dependency tree and kick off upgrades
-    puts Constants::UPGRADE_PROGRESS + 'Navigating projects to perform upgrade operation...'
+    puts "#{Constants::UPGRADE_PROGRESS}Navigating projects to perform upgrade operation...".bg_green.white
     dep_tree = DependencyTree.new(@manifest['projects'])
     dep_tree.traverse do |node|
 
       next if check_success_state node
 
-      puts "#{Constants::UPGRADE_PROGRESS} Processing project #{node.project_name}..."
+      puts "#{Constants::UPGRADE_PROGRESS} Processing project #{node.project_name}...".bg_green.white
 
       # validate project node
-      puts Constants::UPGRADE_PROGRESS + 'Validating project node...'
+      puts "#{Constants::UPGRADE_PROGRESS}Validating project node...".bg_green.white
       input_validator.validate_project_node(node) do |error|
         validation_errors << error if !error.nil?
       end
       raise StandardError, validation_error_message(validation_errors) if validation_errors.length > 0
 
       # the upgrade
-      puts "#{Constants::UPGRADE_PROGRESS} Upgrading project #{node.project_name}..."
+      puts "#{Constants::UPGRADE_PROGRESS} Upgrading project #{node.project_name}...".bg_green.white
       upgrade_status = upgrader.Do node, nuget_targets
 
       # save node name to use for status update
@@ -68,13 +68,13 @@ class UpgradeAll
 
       # project status set in json
       if upgrade_status
-        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} succeeded"
+        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} succeeded".bg_green.white
         @manifest['projects'][node_name]['metadata']['status'] = Constants::SUCCESS
         Dir.chdir Constants::PARENTDIR
       else
         # either cycle was interrupted, a step in upgrade failed or full cycle successfully completed
         # save the version map and manifest
-        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} failed"
+        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} failed".red
         @manifest['projects'][node_name]['metadata']['status'] = Constants::FAILED
         # no more processing after failure
         return false
@@ -99,7 +99,7 @@ class UpgradeAll
 
   def check_success_state node
     status = node.metadata.status == Constants::SUCCESS
-    puts "#{Constants::UPGRADE_PROGRESS} Project #{node.project_name} already in #{Constants::SUCCESS} state. Skipping upgrade..." if status
+    puts "#{Constants::UPGRADE_PROGRESS} Project #{node.project_name} already in #{Constants::SUCCESS} state. Skipping upgrade...".green.bg_white if status
     status
   end
 
