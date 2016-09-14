@@ -1,0 +1,29 @@
+{
+  "version_source": {
+    "repo_url": "C:/src/autoup_sample_repo",
+    "branch": "master"
+  },
+  "projects" : {
+    "root": {
+      "is_root":"true",
+      "project_name": "AutoUpgradeTestNugetProject",
+      "next": "AutoUpgradeTestProject",
+      "previous": "",
+      "metadata": {
+        "repo_url":"C:/src/autoup_sample_repo",
+        "branch":"master",
+        "status": "unprocessed"
+      }
+    },
+    "AutoUpgradeTestProject": {
+      "project_name": "AutoUpgradeTestProject",
+      "next": "",
+      "previous": "AutoUpgradeTestNugetProject",
+      "metadata": {
+        "repo_url":"C:/src/autoup_sample_repo",
+        "branch":"master",
+        "status": "unprocessed"
+      }
+    }
+  }
+}
