@@ -1,9 +1,6 @@
-require_relative '../lib/gitapi'
-require_relative '../lib/constants'
+require_relative '../lib/autoup'
 
 require 'test/unit'
-require 'addressable/uri'
-require 'pathname'
 
 class TestGitApi < Test::Unit::TestCase
 

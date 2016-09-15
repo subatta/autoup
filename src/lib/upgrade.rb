@@ -119,7 +119,8 @@ class UpgradePackages
         .gsub('/', '')
 
       # list of projects
-      projects = SemVerMetadata.projects_in_metadata s
+      sm = SemVerMetadata.new s
+      projects = sm.assemblies
       
       projects.each { |x|
         v[x] = name

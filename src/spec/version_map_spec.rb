@@ -1,13 +1,5 @@
-require_relative '../lib/version_map'
-require_relative '../lib/gitapi'
-require_relative '../lib/constants'
+require_relative '../lib/autoup'
 require 'test/unit'
-require 'addressable/uri'
-require 'pathname'
-require 'nokogiri'
-require 'fileutils'
-require 'semver'
-require 'json'
 
 class TestVersionMap < Test::Unit::TestCase
 

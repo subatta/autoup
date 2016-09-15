@@ -4,7 +4,6 @@ require_relative 'gitapi'
 require_relative 'dependency_tree'
 
 require_relative 'hash_extensions'
-require_relative 'semver_extensions'
 require_relative 'input_validator'
 
 require_relative 'upgrade'

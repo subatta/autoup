@@ -1,8 +1,5 @@
 require 'test/unit'
-require 'json'
-require_relative '../lib/input_validator'
-require_relative '../lib/hash_extensions'
-require_relative '../lib/constants'
+require_relative '../lib/autoup'
 
 class TestUpgrade < Test::Unit::TestCase
 
