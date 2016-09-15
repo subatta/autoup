@@ -12,6 +12,10 @@ class UpgradePackages
     @versions = versions
   end
 
+  def version_map
+    @versions
+  end
+
   def checkout_upgrade_branch
 
     # obtain an upgrade branch
@@ -42,6 +46,7 @@ class UpgradePackages
     set_local_nuget_target nuget_targets
 
     # this project-package map helps in incremententing only those semvers where package has changed
+    puts "#{Constants::UPGRADE_PROGRESS}Obtaining project-package map..."
     @project_packages = get_repository_package_versions
 
     # replace versions in package config files
@@ -65,7 +70,7 @@ class UpgradePackages
     puts "#{Constants::UPGRADE_PROGRESS}Upgrading semvers...".bg_green.white.bold
     auto_update_semvers
     nuget_targets << Dir.pwd + '/build_artifacts'
-    
+
     # build and test
     output = ''
     output = system 'rake'
@@ -80,7 +85,7 @@ class UpgradePackages
 
     # update version map with nuget versions after build success
     update_version_map
-    puts "#{Constants::UPGRADE_PROGRESS}Semver upgraded. Version map updated.".bg_green.white.bold
+    puts "#{Constants::UPGRADE_PROGRESS}Semver upgraded. Version map updated: #{@versions}".bg_green.white.bold
 
     true
   end
@@ -88,6 +93,8 @@ class UpgradePackages
   def set_local_nuget_target nuget_targets
     num_paths = 1;
     nuget_targets_file = Dir.glob '**/.nuget/Nuget.Config'
+    puts "Setting local package sources #{nuget_targets} in #{nuget_targets_file}"
+
     doc = Nokogiri::XML(File.read nuget_targets_file[0])
     nuget_targets.each { |target|
       node_parent = doc.at_css 'packageSources'
@@ -95,6 +102,7 @@ class UpgradePackages
       node['key'] = "local_nuget_source#{num_paths}"
       node['value'] = target
       node_parent.add_child node
+    
       num_paths += 1
     }
     if num_paths > 1
@@ -107,7 +115,7 @@ class UpgradePackages
     v = {}
     # each .semver file has list of projects in its metadata whose assemblies will bear the same version specified
 
-    # load all .project files
+    # load all .semver files
     semvers = Dir["#{Constants::SEMVER}/**/*#{Constants::SEMVER}"]
 
     semvers.each { |s|
@@ -121,11 +129,10 @@ class UpgradePackages
       # list of projects
       sm = SemVerMetadata.new s
       projects = sm.assemblies
-      
+
       projects.each { |x|
         v[x] = name
       }
-
     }
 
     v
@@ -144,6 +151,7 @@ class UpgradePackages
         nodes = doc.xpath "//*[@id]"
         nodes.each { |node|
           if (@versions.has_key?(node['id']))
+            puts "UPDATED package #{node['id']} with version #{node['version']} to #{@versions[node['id']]} in: #{Dir.pwd}/#{file}...".bg_green.white.bold
             node['version'] = @versions[node['id']] 
             is_package_updated = true
           end
@@ -153,13 +161,16 @@ class UpgradePackages
         if is_package_updated
 
           File.write file, doc.to_xml
+          
           proj_name = file
                         .sub(/packages.config/, '')
                         .sub(/.csproj/, '')
                         .sub('/', '')
           
-          @semvers_to_increment << "./#{Constants::SEMVER}/#{@project_packages[proj_name]}#{Constants::SEMVER}"
-          
+          if @project_packages.has_key? proj_name
+            @semvers_to_increment << "./#{Constants::SEMVER}/#{@project_packages[proj_name]}#{Constants::SEMVER}"
+          end
+
           is_package_updated = false
         end
       }
@@ -188,6 +199,7 @@ class UpgradePackages
   def replace_project_versions proj_files
 
     begin
+      is_updated = false
       # iterate each package file, replace version numbers and save
       proj_files.each{ |file|
         puts "Updating references in: #{file}...".bg_green.white.bold
@@ -207,18 +219,20 @@ class UpgradePackages
 
           if hint_path && hint_path[0] != nil
             hint_path_value = hint_path[0].children.to_s
-
             # this identifier is not the same as the node['Include'] one.
             hint_path_id = id_from_hint_path hint_path_value
 
             if @versions.has_key? hint_path_id
+              puts "UPDATED references in: #{file}...".bg_green.white.bold
+              is_updated = true
               hint_path_parts = hint_path_value.split '\\'
               hint_path_parts[2] = hint_path_id + Constants::DOT + @versions[hint_path_id]
               hint_path[0].children = hint_path_parts.join '\\'
             end
           end
         }
-        File.write file, doc.to_xml
+
+        File.write file, doc.to_xml if is_updated
       }
     rescue
       puts $!
@@ -230,8 +244,11 @@ class UpgradePackages
   end
 
   def id_from_hint_path path
+    
     p = path.split('\\')
-    name = p[p.length - 1].split Constants::DOT
+    return '' if p.length < 3
+
+    name = p[2].split Constants::DOT
     name_without_ver = Constants::EMPTY
     name.all? {|i|
       if i.to_i == 0
@@ -239,7 +256,6 @@ class UpgradePackages
       end
     }
     name_without_ver
-      .sub(/.dll/, '')
       .chomp(Constants::DOT)
   end
 

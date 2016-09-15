@@ -72,6 +72,7 @@ class UpgradeAll
         puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} succeeded".bg_green.white.bold
         @manifest['projects'][node_name]['metadata']['status'] = Constants::SUCCESS
         Dir.chdir Constants::PARENTDIR
+        @version_map = upgrader.version_map
       else
         # either cycle was interrupted, a step in upgrade failed or full cycle successfully completed
         # save the version map and manifest

@@ -1,6 +1,4 @@
-require_relative '../lib/dependency_tree'
-require_relative '../lib/constants'
-require_relative '../lib/hash_extensions'
+require_relative '../lib/autoup'
 require 'test/unit'
 
 class TestDependencyTree < Test::Unit::TestCase
@@ -90,5 +88,22 @@ class TestDependencyTree < Test::Unit::TestCase
     end
 
     assert_equal expected, actual
+  end
+
+  def test_traverse_manifest_file
+    Dir.chdir Constants::SPEC if File.basename(Dir.pwd) != Constants::SPEC
+
+    test_manifest_path = Dir.pwd + '/samples/manifest1.json'
+    test_manifest = JSON.parse File.read(test_manifest_path) if File.exist? test_manifest_path
+    dep_tree = DependencyTree.new(test_manifest['projects'])
+
+    expected = ['Fingerprint', 'OCAP']
+    actual = []
+    dep_tree.traverse do |node|
+      actual << node.project_name if !node.nil?
+    end
+
+    assert_equal expected, actual   
+
   end
 end
