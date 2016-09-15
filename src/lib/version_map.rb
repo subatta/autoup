@@ -53,7 +53,7 @@ class VersionMap
 
       next if pkg_file[0].nil?
 
-      puts "Finding packages in: #{pkg_file[0]}".bg_green.white
+      puts "Finding packages in: #{pkg_file[0]}".bg_green.white.bold
       
       doc = Nokogiri::XML File.read(pkg_file[0])
       nodes = doc.xpath "//*[@id]"

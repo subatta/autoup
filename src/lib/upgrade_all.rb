@@ -25,15 +25,16 @@ class UpgradeAll
     @version_map
   end
 
-  def Do input_validator
+  def Do input_validator = nil
+    input_validator = InputValidator.new if input_validator.nil?
 
     puts "\n"
-    puts "#{Constants::UPGRADE_PROGRESS}Upgrade All has begun..".bg_green.white
+    puts "#{Constants::UPGRADE_PROGRESS}Upgrade All has begun..".bg_green.white.bold
 
     return false if @manifest.nil?
 
     # validate manifest
-    puts "#{Constants::UPGRADE_PROGRESS}Validating manifest...".bg_green.white
+    puts "#{Constants::UPGRADE_PROGRESS}Validating manifest...".bg_green.white.bold
     validation_errors = []
     input_validator.validate_manifest(@manifest) do |error|
       validation_errors << error if !error.nil?
@@ -44,23 +45,23 @@ class UpgradeAll
     upgrader = UpgradePackages.new
 
     # cycle through dependency tree and kick off upgrades
-    puts "#{Constants::UPGRADE_PROGRESS}Navigating projects to perform upgrade operation...".bg_green.white
+    puts "#{Constants::UPGRADE_PROGRESS}Navigating projects to perform upgrade operation...".bg_green.white.bold
     dep_tree = DependencyTree.new(@manifest['projects'])
     dep_tree.traverse do |node|
 
       next if check_success_state node
 
-      puts "#{Constants::UPGRADE_PROGRESS} Processing project #{node.project_name}...".bg_green.white
+      puts "#{Constants::UPGRADE_PROGRESS} Processing project #{node.project_name}...".bg_green.white.bold
 
       # validate project node
-      puts "#{Constants::UPGRADE_PROGRESS}Validating project node...".bg_green.white
+      puts "#{Constants::UPGRADE_PROGRESS}Validating project node...".bg_green.white.bold
       input_validator.validate_project_node(node) do |error|
         validation_errors << error if !error.nil?
       end
       raise StandardError, validation_error_message(validation_errors) if validation_errors.length > 0
 
       # the upgrade
-      puts "#{Constants::UPGRADE_PROGRESS} Upgrading project #{node.project_name}...".bg_green.white
+      puts "#{Constants::UPGRADE_PROGRESS} Upgrading project #{node.project_name}...".bg_green.white.bold
       upgrade_status = upgrader.Do node, nuget_targets
 
       # save node name to use for status update
@@ -68,7 +69,7 @@ class UpgradeAll
 
       # project status set in json
       if upgrade_status
-        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} succeeded".bg_green.white
+        puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} succeeded".bg_green.white.bold
         @manifest['projects'][node_name]['metadata']['status'] = Constants::SUCCESS
         Dir.chdir Constants::PARENTDIR
       else
