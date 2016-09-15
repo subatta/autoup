@@ -232,14 +232,17 @@ class UpgradePackages
           end
         }
 
-        File.write file, doc.to_xml if is_updated
+        if is_updated
+          is_updated = false
+          File.write file, doc.to_xml
+        end
       }
     rescue
       puts $!
       return false
     end
 
-    return true
+    true
 
   end
 
