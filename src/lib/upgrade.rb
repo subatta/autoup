@@ -272,7 +272,7 @@ class UpgradePackages
     # patch incremented during upgrade
     v = SemVer.new
     v.load file
-    v.patch = v.patch + 1
+    v.patch += 1
     v.save file
   end
 

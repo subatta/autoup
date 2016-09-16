@@ -9,9 +9,10 @@ class UpgradeAll
 
   MANIFEST_FILE = 'manifest.json'
 
-  def initialize manifest_path = MANIFEST_FILE
+  def initialize manifest_file = MANIFEST_FILE
 
-    @manifest = JSON.parse File.read(manifest_path) if File.exist? manifest_path
+    @manifest_file = manifest_file
+    @manifest = JSON.parse File.read(manifest_file) if File.exist? manifest_file
 
     @version_map = {}
 
@@ -78,6 +79,7 @@ class UpgradeAll
         # save the version map and manifest
         puts "#{Constants::UPGRADE_PROGRESS} Upgrade of #{node.project_name} failed".red
         @manifest['projects'][node_name]['metadata']['status'] = Constants::FAILED
+        File.write @manifest_file, @manifest.to_json
         # no more processing after failure
         return false
       end
@@ -86,6 +88,8 @@ class UpgradeAll
 
     # upgrade completed successfully, update status as unprocessed and save version map and manifest, push
     reset_status_unprocessed
+
+    File.write Constants::VERSION_MAP_FILE, @version_map.to_json
 
     true
   end
