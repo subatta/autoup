@@ -263,6 +263,7 @@ class UpgradePackages
   end
 
   def auto_update_semvers
+    @semvers_to_increment.uniq!
     @semvers_to_increment.each { |s|
       auto_update_semver s
     }
